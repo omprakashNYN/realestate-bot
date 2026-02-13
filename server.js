@@ -1,13 +1,16 @@
-require("dotenv").config();
-const express = require("express");
+app.get("/webhook", (req, res) => {
+  const VERIFY_TOKEN = "myverifytoken123";
 
-const app = express();
-app.use(express.json());
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
 
-app.get("/", (req, res) => {
-  res.send("Server is running");
-});
-
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+  if (mode && token) {
+    if (mode === "subscribe" && token === VERIFY_TOKEN) {
+      console.log("Webhook verified!");
+      res.status(200).send(challenge);
+    } else {
+      res.sendStatus(403);
+    }
+  }
 });
