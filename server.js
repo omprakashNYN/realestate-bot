@@ -30,5 +30,38 @@ const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
+}); 
+app.post("/webhook", async (req, res) => {
+  console.log("Incoming:", JSON.stringify(req.body));
+
+  const body = req.body;
+
+  if (body.entry) {
+    const message = body.entry[0].changes[0].value.messages?.[0];
+
+    if (message) {
+      const from = message.from;
+
+      await fetch(
+        `https://graph.facebook.com/v18.0/933761256497078/messages`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${process.env.WHATSAPP_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            messaging_product: "whatsapp",
+            to: from,
+            type: "text",
+            text: { body: "🔥 Bot is working bro" }
+          })
+        }
+      );
+    }
+  }
+
+  res.sendStatus(200);
 });
+
 
